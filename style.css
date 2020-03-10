@@ -1,0 +1,31 @@
+h1 {
+    margin: 0 auto;
+    color: #ffffff;
+    padding: 5px 0; 
+}
+
+.form-inline {
+    padding-left: 20px;
+}
+
+.form-inline label{
+    width: 100%;
+   justify-content: left;
+   padding: 0 3px 10px;
+}
+
+.list-group{
+    padding: 30px 20px;
+}
+
+.bg-light{
+    height: 100%;
+}
+
+.card {
+    margin-top: 20px;
+}
+
+h3{
+    padding-top: 20px;
+}
