@@ -21,7 +21,7 @@ function displayCurrentData(city) {
       latitude = response.coord.lat;
       longitude = response.coord.lon;
       var iconcode = response.weather[0].icon;
-      var iconurl = "http://openweathermap.org/img/w/" + iconcode + ".png";
+      var iconurl = "https://openweathermap.org/img/w/" + iconcode + ".png";
       $(".city").html(
         "<h3>" +
           city +
@@ -51,7 +51,7 @@ function displayCurrentData(city) {
 
 function displayUVIndex(city, latitude, longitude) {
   var queryURL =
-    "http://api.openweathermap.org/data/2.5/uvi?appid=" +
+    "https://api.openweathermap.org/data/2.5/uvi?appid=" +
     apiKey +
     "&lat=" +
     latitude +
