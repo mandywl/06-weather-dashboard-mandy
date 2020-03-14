@@ -18,11 +18,8 @@ function displayCurrentData(city) {
     method: "GET"
   })
     .then(function(response) {
-      console.log(response);
       latitude = response.coord.lat;
       longitude = response.coord.lon;
-
-      //console.log("longitude is", longitude);
       var iconcode = response.weather[0].icon;
       var iconurl = "http://openweathermap.org/img/w/" + iconcode + ".png";
       $(".city").html(
@@ -64,7 +61,6 @@ function displayUVIndex(city, latitude, longitude) {
     url: queryURL,
     method: "GET"
   }).then(function(response) {
-    //console.log("uv response is", response.value);
     var uv = response.value;
     var color = "";
     switch (true) {
@@ -97,10 +93,6 @@ function displayFiveDayForecast(city) {
     city +
     ",US&appid=" +
     apiKey;
-  //   var queryURL =
-  //     "https://api.openweathermap.org/data/2.5/forecast/daily?q=" +
-  //     city +
-  //     "&cnt=6&appid=166a433c57516f51dfab1f7edaed8413";
   var day1 = [];
   var day2 = [];
   var day3 = [];
@@ -111,8 +103,6 @@ function displayFiveDayForecast(city) {
     url: queryURL,
     method: "GET"
   }).then(function(response) {
-    console.log(response);
-
     for (var i = 0; i < response.list.length; i++) {
       switch (response.list[i].dt_txt.substring(0, 10)) {
         case moment()
@@ -192,8 +182,6 @@ function displayForecastData(day) {
 
   $(".date" + index).text(formatDate(day.dt_txt));
   $(".date" + index).after($weatherIcon);
-  // $(".card-temp" + index).prepend("<p>Test</p>");
-  //$("<p>Test</p>").prependTo($(".card-temp" + index));
   $(".card-humidity" + index).text("Humidity: " + day.main.humidity + "%");
 
   // // Convert the temp to fahrenheit
@@ -206,8 +194,9 @@ function displayForecastData(day) {
   index++;
 }
 
-const history =
-  JSON.parse(localStorage.getItem("weather-search-history")) || [];
+const history = JSON.parse(localStorage.getItem("weather-search-history")) || [
+  "Melbourne,AU"
+];
 
 function searchSmth(searchTerm) {
   saveSearchHistory(searchTerm);
@@ -222,20 +211,15 @@ function saveSearchHistory(searchTerm) {
       history.push(searchTerm);
     }
   } else {
-    //console.log("History is", history);
     activeItem = history.findIndex(element => element === searchTerm);
-    //console.log(activeItem);
   }
   localStorage.setItem("weather-search-history", JSON.stringify(history));
-  //console.log(history);
 }
 
 function displaySearchResult() {
   $(".list-group").empty();
 
   for (var i = 0; i < history.length; i++) {
-    //$(".list-group-item").removeClass("active");
-    // console.log("history [i] is ", history[i])
     if (activeItem == i) {
       $(".list-group").prepend(
         '<li class="list-group-item active" data-index=' +
@@ -258,14 +242,12 @@ function displaySearchResult() {
     $("#forecast").empty();
     var city = $(this).text();
     activeItem = $(this).attr("data-index");
-    //console.log(activeItem);
     displayCurrentData(city);
     displayFiveDayForecast(city);
   });
 }
 
 displayCurrentData(history[history.length - 1]);
-//displayForecastContainer();
 displayFiveDayForecast(history[history.length - 1]);
 displaySearchResult();
 
@@ -281,9 +263,8 @@ $("#submit").on("click", function(event) {
     .trim()
     .toUpperCase();
   searchedItem = searchedItem.replace(/\s*,\s*/g, ",");
-  //console.log(searchedItem);
+  activeItem = 5;
   $("#forecast").empty();
   displayCurrentData(searchedItem);
   displayFiveDayForecast(searchedItem);
-  activeItem = 5;
 });
