@@ -6,190 +6,284 @@ var activeItem = 5;
 var apiKey = "5b5ac65f68134f9e591aa02445eeaaf6";
 
 function displayCurrentData(city) {
-    var today = moment().format('L');
-    var queryURL = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + apiKey;
+  var today = moment().format("L");
+  var queryURL =
+    "https://api.openweathermap.org/data/2.5/weather?q=" +
+    city +
+    "&appid=" +
+    apiKey;
 
-    $.ajax({
-        url: queryURL,
-        method: "GET"
-    }).then(function (response) {
-        //console.log(response);
-        latitude = response.coord.lat;
-        longitude = response.coord.lon;
+  $.ajax({
+    url: queryURL,
+    method: "GET"
+  })
+    .then(function(response) {
+      console.log(response);
+      latitude = response.coord.lat;
+      longitude = response.coord.lon;
 
-        //console.log("longitude is", longitude);
-        var iconcode = response.weather[0].icon;
-        var iconurl = "http://openweathermap.org/img/w/" + iconcode + ".png";
-        $(".city").html("<h3>" + city + " (" + today + ")" + "<img id='wicon' src='" + iconurl + "' alt='Weather icon'></h3>");
-        $(".wind").text("Wind Speed: " + response.wind.speed + " MPH");
-        $(".humidity").text("Humidity: " + response.main.humidity + "%");
-        // Convert the temp to fahrenheit
-        var tempF = (response.main.temp - 273.15) * 1.80 + 32;
-        $(".temp").text("Temperature: " + tempF.toFixed(2) + "F");
-        displayUVIndex(city, latitude, longitude);
-        // save here cause its successful
-        searchSmth(city);
-        displaySearchResult();
-    }).catch(function (error) {
-        alert(error.responseJSON.message);
-        // dont do anything here
-
+      //console.log("longitude is", longitude);
+      var iconcode = response.weather[0].icon;
+      var iconurl = "http://openweathermap.org/img/w/" + iconcode + ".png";
+      $(".city").html(
+        "<h3>" +
+          city +
+          " (" +
+          today +
+          ")" +
+          "<img id='wicon' src='" +
+          iconurl +
+          "' alt='Weather icon'></h3>"
+      );
+      $(".wind").text("Wind Speed: " + response.wind.speed + " MPH");
+      $(".humidity").text("Humidity: " + response.main.humidity + "%");
+      // Convert the temp to fahrenheit
+      var tempF = (response.main.temp - 273.15) * 1.8 + 32;
+      $(".temp").text("Temperature: " + tempF.toFixed(2));
+      $(".temp").append("<span> &#176;F</span>");
+      displayUVIndex(city, latitude, longitude);
+      // save here cause its successful
+      searchSmth(city);
+      displaySearchResult();
+    })
+    .catch(function(error) {
+      alert(error.responseJSON.message);
+      // dont do anything here
     });
 }
 
 function displayUVIndex(city, latitude, longitude) {
-    var queryURL = "http://api.openweathermap.org/data/2.5/uvi?appid=" + apiKey + "&lat=" + latitude + "&lon=" + longitude;
-    $.ajax({
-        url: queryURL,
-        method: "GET"
-    }).then(function (response) {
-        //console.log("uv response is", response.value);
+  var queryURL =
+    "http://api.openweathermap.org/data/2.5/uvi?appid=" +
+    apiKey +
+    "&lat=" +
+    latitude +
+    "&lon=" +
+    longitude;
+  $.ajax({
+    url: queryURL,
+    method: "GET"
+  }).then(function(response) {
+    //console.log("uv response is", response.value);
+    var uv = response.value;
+    var color = "";
+    switch (true) {
+      case uv <= 3:
+        color = "green";
+        break;
+      case uv > 3 && uv <= 6:
+        color = "yellow";
+        break;
+      case uv > 6 && uv <= 8:
+        color = " orange";
+        break;
+      case uv > 8 && uv <= 11:
+        color = "red";
+        break;
+      case uv > 11:
+        color = "violet";
+        break;
+    }
 
-        $(".uv").text("UV Index: " + response.value);
-    });
+    $(".uv").text("UV Index: ");
+    $(".uv").append(' <span class="uvText"> ' + uv + "</span > ");
+    $(".uvText").css("background-color", color);
+  });
 }
 
 function displayFiveDayForecast(city) {
-    var queryURL = "https://api.openweathermap.org/data/2.5/forecast?q=" + city + ",US&appid=5b5ac65f68134f9e591aa02445eeaaf6";
-    var day1 = [];
-    var day2 = [];
-    var day3 = [];
-    var day4 = [];
-    var day5 = [];
-    var days = [day1, day2, day3, day4];
+  var queryURL =
+    "https://api.openweathermap.org/data/2.5/forecast?q=" +
+    city +
+    ",US&appid=" +
+    apiKey;
+  //   var queryURL =
+  //     "https://api.openweathermap.org/data/2.5/forecast/daily?q=" +
+  //     city +
+  //     "&cnt=6&appid=166a433c57516f51dfab1f7edaed8413";
+  var day1 = [];
+  var day2 = [];
+  var day3 = [];
+  var day4 = [];
+  var day5 = [];
 
-    $.ajax({
-        url: queryURL,
-        method: "GET"
-    }).then(function (response) {
-        //console.log(response);
+  $.ajax({
+    url: queryURL,
+    method: "GET"
+  }).then(function(response) {
+    console.log(response);
 
-        for (var i = 0; i < response.list.length; i++) {
+    for (var i = 0; i < response.list.length; i++) {
+      switch (response.list[i].dt_txt.substring(0, 10)) {
+        case moment()
+          .add(1, "days")
+          .format()
+          .substring(0, 10):
+          day1.push(response.list[i]);
+          break;
+        case moment()
+          .add(2, "days")
+          .format()
+          .substring(0, 10):
+          day2.push(response.list[i]);
+          break;
+        case moment()
+          .add(3, "days")
+          .format()
+          .substring(0, 10):
+          day3.push(response.list[i]);
+          break;
+        case moment()
+          .add(4, "days")
+          .format()
+          .substring(0, 10):
+          day4.push(response.list[i]);
+          break;
+        case moment()
+          .add(5, "days")
+          .format()
+          .substring(0, 10):
+          day5.push(response.list[i]);
+          break;
+      }
+    }
 
-            switch (response.list[i].dt_txt.substring(0, 10)) {
-                case moment().add(1, 'days').format().substring(0, 10):
-                    day1.push(response.list[i]);
-                    break;
-                case moment().add(2, 'days').format().substring(0, 10):
-                    day2.push(response.list[i]);
-                    break;
-                case moment().add(3, 'days').format().substring(0, 10):
-                    day3.push(response.list[i]);
-                    break;
-                case moment().add(4, 'days').format().substring(0, 10):
-                    day4.push(response.list[i]);
-                    break;
-                case moment().add(5, 'days').format().substring(0, 10):
-                    day5.push(response.list[i]);
-                    break;
-
-            }
-
-        }
-
-        displayForecastData(day1[0]);
-        displayForecastData(day2[0]);
-        displayForecastData(day3[0]);
-        displayForecastData(day4[0]);
-        displayForecastData(day5[0]);
-    });
+    displayForecastData(day1[0]);
+    displayForecastData(day2[0]);
+    displayForecastData(day3[0]);
+    displayForecastData(day4[0]);
+    displayForecastData(day5[0]);
+  });
 }
 
 function formatDate(unformatDate) {
-    var unformatedDate = unformatDate.substr(0, unformatDate.indexOf(' '));
-    var arrDate = unformatedDate.split("-");
-    return arrDate[1] + "/" + arrDate[2] + "/" + arrDate[0];
+  var unformatedDate = unformatDate.substr(0, unformatDate.indexOf(" "));
+  var arrDate = unformatedDate.split("-");
+  return arrDate[1] + "/" + arrDate[2] + "/" + arrDate[0];
 }
 
 function displayForecastData(day) {
-    var $forecastContainer = $('<div class="forecast col-md-2 col-12 card text-white bg-primary mb-3 forecast' + index + '">')
-    var $cardBody = $('<div class="card-body card-body' + index + '">');
-    var $dateHeading = $('<h5 class="date' + index + '">' + '</h5>');
-    var $weatherIcon = $('<img id="wicon" src="http://openweathermap.org/img/w/' + day.weather[0].icon + '.png"alt="Weather icon" class="icon' + index + '">')
-    var $forecastTemp = $('<p class="card-temp' + index + '">' + '</p>');
-    var $forecastHumidity = $('<p class="card-humidity' + index + '">' + '</p>');
-    $('#forecast').append($forecastContainer.append($cardBody.append($dateHeading).append($forecastTemp).append($forecastHumidity)));
+  var $forecastContainer = $(
+    '<div class="forecast col-md-2 col-12 card text-white bg-primary mb-3 forecast' +
+      index +
+      '">'
+  );
+  var $cardBody = $('<div class="card-body card-body' + index + '">');
+  var $dateHeading = $('<h5 class="date' + index + '">' + "</h5>");
+  var $weatherIcon = $(
+    '<img id="wicon" src="http://openweathermap.org/img/w/' +
+      day.weather[0].icon +
+      '.png"alt="Weather icon" class="icon' +
+      index +
+      '">'
+  );
+  var $forecastTempMin = $('<p class="card-temp-min' + index + '">' + "</p>");
+  var $forecastTempMax = $('<p class="card-temp-max' + index + '">' + "</p>");
+  var $forecastHumidity = $('<p class="card-humidity' + index + '">' + "</p>");
+  $("#forecast").append(
+    $forecastContainer.append(
+      $cardBody
+        .append($dateHeading)
+        .append($forecastTempMin)
+        .append($forecastTempMax)
+        .append($forecastHumidity)
+    )
+  );
 
-    $(".date" + index).text(formatDate(day.dt_txt));
-    $(".date" + index).after($weatherIcon);
-    // $(".card-temp" + index).prepend("<p>Test</p>");
-    //$("<p>Test</p>").prependTo($(".card-temp" + index));
-    $(".card-humidity" + index).text("Humidity: " + day.main.humidity + "%");
+  $(".date" + index).text(formatDate(day.dt_txt));
+  $(".date" + index).after($weatherIcon);
+  // $(".card-temp" + index).prepend("<p>Test</p>");
+  //$("<p>Test</p>").prependTo($(".card-temp" + index));
+  $(".card-humidity" + index).text("Humidity: " + day.main.humidity + "%");
 
-    // // Convert the temp to fahrenheit
-    var tempF = (day.main.temp - 273.15) * 1.80 + 32;
-    $(".card-temp" + index).text("Temp: " + tempF.toFixed(2) + " F");
-    index++;
+  // // Convert the temp to fahrenheit
+  var tempF_min = (day.main.temp_min - 273.15) * 1.8 + 32;
+  var tempF_max = (day.main.temp_max - 273.15) * 1.8 + 32;
+  $(".card-temp-min" + index).text("Temp min: " + tempF_min.toFixed(2));
+  $(".card-temp-max" + index).text("Temp max: " + tempF_max.toFixed(2));
+  $(".card-temp-min" + index).append(" <span>&#176;F</span>");
+  $(".card-temp-max" + index).append(" <span>&#176;F</span>");
+  index++;
 }
 
-const history = JSON.parse(localStorage.getItem("weather-search-history")) || [];
+const history =
+  JSON.parse(localStorage.getItem("weather-search-history")) || [];
 
 function searchSmth(searchTerm) {
-    saveSearchHistory(searchTerm);
+  saveSearchHistory(searchTerm);
 }
 
 function saveSearchHistory(searchTerm) {
-    if (!history.includes(searchTerm)) {
-        if (history.length > 5) {
-            history.shift();
-            history.push(searchTerm);
-        } else {
-            history.push(searchTerm);
-        }
+  if (!history.includes(searchTerm)) {
+    if (history.length > 5) {
+      history.shift();
+      history.push(searchTerm);
+    } else {
+      history.push(searchTerm);
     }
-    else {
-        console.log("History is", history);
-        activeItem = history.findIndex((element) => element === searchTerm);
-        console.log(activeItem);
-    }
-    localStorage.setItem("weather-search-history", JSON.stringify(history));
-    //console.log(history);
+  } else {
+    //console.log("History is", history);
+    activeItem = history.findIndex(element => element === searchTerm);
+    //console.log(activeItem);
+  }
+  localStorage.setItem("weather-search-history", JSON.stringify(history));
+  //console.log(history);
 }
 
 function displaySearchResult() {
-    $(".list-group").empty();
+  $(".list-group").empty();
 
-    for (var i = 0; i < history.length; i++) {
-        //$(".list-group-item").removeClass("active");
-        // console.log("history [i] is ", history[i])
-        if (activeItem == i) {
-            $(".list-group").prepend('<li class="list-group-item active" data-index=' + i + '>' + history[i] + '</li>');
-        } else {
-            $(".list-group").prepend('<li class="list-group-item"  data-index=' + i + '>' + history[i] + '</li>');
-        }
+  for (var i = 0; i < history.length; i++) {
+    //$(".list-group-item").removeClass("active");
+    // console.log("history [i] is ", history[i])
+    if (activeItem == i) {
+      $(".list-group").prepend(
+        '<li class="list-group-item active" data-index=' +
+          i +
+          ">" +
+          history[i] +
+          "</li>"
+      );
+    } else {
+      $(".list-group").prepend(
+        '<li class="list-group-item"  data-index=' +
+          i +
+          ">" +
+          history[i] +
+          "</li>"
+      );
     }
-    $(".list-group-item").on("click", function () {
-        $('#forecast').empty();
-        var city = $(this).text();
-        activeItem = $(this).attr("data-index");
-        console.log(activeItem);
-        displayCurrentData(city);
-        displayFiveDayForecast(city)
-    });
-
+  }
+  $(".list-group-item").on("click", function() {
+    $("#forecast").empty();
+    var city = $(this).text();
+    activeItem = $(this).attr("data-index");
+    //console.log(activeItem);
+    displayCurrentData(city);
+    displayFiveDayForecast(city);
+  });
 }
-
-
 
 displayCurrentData(history[history.length - 1]);
 //displayForecastContainer();
 displayFiveDayForecast(history[history.length - 1]);
 displaySearchResult();
 
-
-
-
 // CLICK HANDLERS
 // ==========================================================
 
 // .on("click") function associated with the Search Button
-$("#submit").on("click", function (event) {
-    event.preventDefault();
-    // Empty the region associated with the articles
-    var searchedItem = $("#search-item").val().trim().toUpperCase();
-    //console.log(searchedItem);
-    $('#forecast').empty();
-    displayCurrentData(searchedItem);
-    displayFiveDayForecast(searchedItem);
-    activeItem = 5;
+$("#submit").on("click", function(event) {
+  event.preventDefault();
+  // Empty the region associated with the articles
+  var searchedItem = $("#search-item")
+    .val()
+    .trim()
+    .toUpperCase();
+  searchedItem = searchedItem.replace(/\s*,\s*/g, ",");
+  //console.log(searchedItem);
+  $("#forecast").empty();
+  displayCurrentData(searchedItem);
+  displayFiveDayForecast(searchedItem);
+  activeItem = 5;
 });

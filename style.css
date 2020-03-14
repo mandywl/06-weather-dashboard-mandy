@@ -1,46 +1,65 @@
 h1 {
-    margin: 0 auto;
-    color: #ffffff;
-    padding: 5px 0; 
+  margin: 0 auto;
+  color: #ffffff;
+  padding: 5px 0;
 }
 
 .form-inline {
-    padding-left: 20px;
+  padding-left: 20px;
 }
 
-.form-inline label{
-    width: 100%;
-   justify-content: left;
-   padding: 0 3px 10px;
+.form-inline label {
+  width: 100%;
+  justify-content: left;
+  padding: 0 3px 10px;
 }
 
-.list-group{
-    padding: 30px 20px;
+.list-group {
+  padding: 30px 20px;
 }
 
-.bg-light{
-    height: 100%;
+.bg-light {
+  height: 100%;
 }
 
 .card {
-    margin-top: 20px;
+  margin-top: 20px;
 }
 
-h3{
-    padding-top: 20px;
+h3 {
+  padding-top: 20px;
 }
 
 .forecast {
-    margin-left:15px;
+  margin-left: 15px;
 }
 
 input {
-    padding: 12px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    resize: vertical;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  resize: vertical;
 }
 
 .form-control {
-    width: 200px;
+  width: 200px;
+}
+
+.uvText {
+  padding: 8px;
+  border-radius: 5px;
+}
+
+.card-body {
+  line-height: 35px;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.current-forecast {
+  padding-left: 20px;
+}
+
+.row {
+  width: 100%;
 }
