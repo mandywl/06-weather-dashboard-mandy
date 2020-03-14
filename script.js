@@ -2,49 +2,50 @@ var items = [];
 var latitude;
 var longitude;
 var index = 0;
+var activeItem = 5;
+var apiKey = "5b5ac65f68134f9e591aa02445eeaaf6";
 
 function displayCurrentData(city) {
     var today = moment().format('L');
-    var queryURL = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=5b5ac65f68134f9e591aa02445eeaaf6";
+    var queryURL = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + apiKey;
 
     $.ajax({
         url: queryURL,
         method: "GET"
     }).then(function (response) {
         //console.log(response);
+        latitude = response.coord.lat;
+        longitude = response.coord.lon;
+
+        //console.log("longitude is", longitude);
         var iconcode = response.weather[0].icon;
         var iconurl = "http://openweathermap.org/img/w/" + iconcode + ".png";
         $(".city").html("<h3>" + city + " (" + today + ")" + "<img id='wicon' src='" + iconurl + "' alt='Weather icon'></h3>");
         $(".wind").text("Wind Speed: " + response.wind.speed + " MPH");
         $(".humidity").text("Humidity: " + response.main.humidity + "%");
-        $(".uv").text("UV Index: ");
         // Convert the temp to fahrenheit
         var tempF = (response.main.temp - 273.15) * 1.80 + 32;
         $(".temp").text("Temperature: " + tempF.toFixed(2) + "F");
+        displayUVIndex(city, latitude, longitude);
+        // save here cause its successful
+        searchSmth(city);
+        displaySearchResult();
+    }).catch(function (error) {
+        alert(error.responseJSON.message);
+        // dont do anything here
+
     });
 }
 
-function displayUVIndex(city) {
-    var geocoder = new google.maps.Geocoder();
-    var address = city;
-
-
-    geocoder.geocode({ 'address': address }, function (results, status) {
-
-        if (status == google.maps.GeocoderStatus.OK) {
-            latitude = results[0].geometry.location.lat();
-            longitude = results[0].geometry.location.lng();
-        }
-    });
-    var queryURL = "http://api.openweathermap.org/data/2.5/uvi?appid=5b5ac65f68134f9e591aa02445eeaaf6&lat=" + latitude + "&lon=" + longitude;
-
+function displayUVIndex(city, latitude, longitude) {
+    var queryURL = "http://api.openweathermap.org/data/2.5/uvi?appid=" + apiKey + "&lat=" + latitude + "&lon=" + longitude;
     $.ajax({
         url: queryURL,
         method: "GET"
     }).then(function (response) {
-        //console.log(response);
+        //console.log("uv response is", response.value);
 
-        $(".uv").text("UV Index: ");
+        $(".uv").text("UV Index: " + response.value);
     });
 }
 
@@ -61,7 +62,7 @@ function displayFiveDayForecast(city) {
         url: queryURL,
         method: "GET"
     }).then(function (response) {
-        console.log(response);
+        //console.log(response);
 
         for (var i = 0; i < response.list.length; i++) {
 
@@ -86,9 +87,6 @@ function displayFiveDayForecast(city) {
 
         }
 
-        // console.log("day1 is", day1);
-        // console.log("day2 is", day2);
-
         displayForecastData(day1[0]);
         displayForecastData(day2[0]);
         displayForecastData(day3[0]);
@@ -104,15 +102,18 @@ function formatDate(unformatDate) {
 }
 
 function displayForecastData(day) {
-
-    var $forecastContainer = $('<div class="forecast col-2 card text-white bg-primary mb-3 forecast' + index + '">')
+    var $forecastContainer = $('<div class="forecast col-md-2 col-12 card text-white bg-primary mb-3 forecast' + index + '">')
     var $cardBody = $('<div class="card-body card-body' + index + '">');
     var $dateHeading = $('<h5 class="date' + index + '">' + '</h5>');
+    var $weatherIcon = $('<img id="wicon" src="http://openweathermap.org/img/w/' + day.weather[0].icon + '.png"alt="Weather icon" class="icon' + index + '">')
     var $forecastTemp = $('<p class="card-temp' + index + '">' + '</p>');
     var $forecastHumidity = $('<p class="card-humidity' + index + '">' + '</p>');
     $('#forecast').append($forecastContainer.append($cardBody.append($dateHeading).append($forecastTemp).append($forecastHumidity)));
 
     $(".date" + index).text(formatDate(day.dt_txt));
+    $(".date" + index).after($weatherIcon);
+    // $(".card-temp" + index).prepend("<p>Test</p>");
+    //$("<p>Test</p>").prependTo($(".card-temp" + index));
     $(".card-humidity" + index).text("Humidity: " + day.main.humidity + "%");
 
     // // Convert the temp to fahrenheit
@@ -136,30 +137,41 @@ function saveSearchHistory(searchTerm) {
             history.push(searchTerm);
         }
     }
+    else {
+        console.log("History is", history);
+        activeItem = history.findIndex((element) => element === searchTerm);
+        console.log(activeItem);
+    }
     localStorage.setItem("weather-search-history", JSON.stringify(history));
-    console.log(history);
+    //console.log(history);
 }
 
 function displaySearchResult() {
     $(".list-group").empty();
 
     for (var i = 0; i < history.length; i++) {
-        $(".list-group-item").removeClass("active");
-        $(".list-group").prepend('<li class="list-group-item active">' + history[i] + '</li>');
+        //$(".list-group-item").removeClass("active");
+        // console.log("history [i] is ", history[i])
+        if (activeItem == i) {
+            $(".list-group").prepend('<li class="list-group-item active" data-index=' + i + '>' + history[i] + '</li>');
+        } else {
+            $(".list-group").prepend('<li class="list-group-item"  data-index=' + i + '>' + history[i] + '</li>');
+        }
     }
-
     $(".list-group-item").on("click", function () {
         $('#forecast').empty();
         var city = $(this).text();
+        activeItem = $(this).attr("data-index");
+        console.log(activeItem);
         displayCurrentData(city);
         displayFiveDayForecast(city)
-        $(".list-group-item").removeClass("active");
-        $(this).addClass("active");
     });
+
 }
 
+
+
 displayCurrentData(history[history.length - 1]);
-displayUVIndex(history[history.length - 1])
 //displayForecastContainer();
 displayFiveDayForecast(history[history.length - 1]);
 displaySearchResult();
@@ -176,8 +188,8 @@ $("#submit").on("click", function (event) {
     // Empty the region associated with the articles
     var searchedItem = $("#search-item").val().trim().toUpperCase();
     //console.log(searchedItem);
+    $('#forecast').empty();
     displayCurrentData(searchedItem);
     displayFiveDayForecast(searchedItem);
-    searchSmth(searchedItem);
-    displaySearchResult();
+    activeItem = 5;
 });
