@@ -1,8 +1,8 @@
-# 06-weather-dashboard-mandy
+weather-dashboard-mandy
 
 # Description
 
-- This is a weather dashboard appliation where user can search for a city, the following information is displayed: current temperature, current humidity, windspeed, uv index, and 5 day forecast. Application stores previously searched for cities and loads last searched city forecast on page load.
+- This is a weather dashboard application where user can search for a city, the following information is displayed: current temperature, current humidity, windspeed, uv index, and 5 day forecast. Application stores previously searched for cities and loads last searched city forecast on page load.
 
 # App Screenshot
 
