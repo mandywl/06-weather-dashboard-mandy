@@ -11,7 +11,7 @@ weather-dashboard-mandy
 # Deployed url
 
 - https://github.com/mandywl/06-weather-dashboard-mandy
-- https://mandywl.github.io/06-weather-dashboard-mandy/
+- https://mandywl.github.io/weather-dashboard-mandy/
 
 # Instructions
 
